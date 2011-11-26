@@ -1,5 +1,5 @@
 use strictures 1;
-use Test::More qw(no_plan);
+use Test::More;
 
 BEGIN {
   eval { require Moo::Role; 1 }
@@ -39,3 +39,5 @@ is($lights->lights_on, 1, 'Turn on');
 is($lights->lights, 1, 'On');
 is($lights->lights_off, 0, 'Turn off');
 is($lights->lights, 0, 'Off');
+
+done_testing;
