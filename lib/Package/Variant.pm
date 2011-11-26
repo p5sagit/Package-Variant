@@ -56,3 +56,233 @@ sub build_variant_of {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Package::Variant - Parameterizable packages
+
+=head1 SYNOPSIS
+
+  # declaring a variable Moo role
+  package My::Role::ObjectAttr;
+  use strictures 1;
+  use Package::Variant
+    # what modules to 'use'
+    importing => { 'Moo::Role' => [] },
+    # proxied subroutines
+    subs => [qw( has around before after extends )],
+
+  sub make_variant {
+    my ($class, $target_package, %arguments) = @_;
+    # access arguments
+    my $name = $arguments{name};
+    # use proxied 'has' to add an attribute
+    has $name => (is => 'lazy');
+    # install a builder method
+    install "_build_${name}" => sub {
+      return $arguments{class}->new;
+    };
+  }
+
+  # using the role
+  package My::Class::WithObjectAttr;
+  use strictures 1;
+  use Moo;
+  use My::Role::ObjectAttr;
+
+  with ObjectAttr(name => 'some_obj', class => 'Some::Class');
+
+  # using our class
+  my $obj = My::Class::WithObjectAttr->new;
+  $obj->some_obj; # returns a Some::Class instance
+
+=head1 DESCRIPTION
+
+This module allows you to build packages that return different variations
+depending on what parameters are given.
+
+Users of your package will receive a subroutine able to take parameters
+and return the name of a suitable variant package. The implmenetation does
+not care about what kind of package it builds.
+
+=head2 Declaring a variable package
+
+There are two important parts to creating a variable package. You first
+have to give C<Package::Variant> some basic information about what kind of
+package you want to provide, and how. The second part is implementing a
+method receiving the user's arguments and generating your variants.
+
+=head3 Setting up the environment for building variations
+
+When you C<use Package::Variant>, you pass along some arguments that
+describe how you intend to build your variations.
+
+  use Package::Variant
+    importing => { $package => \@import_arguments, ... },
+    subs      => [ @proxied_subroutine_names ];
+
+The L</importing> option needs to be a hash reference with package names
+to be C<use>d as keys, and array references containing the import
+arguments as values. These packages will be imported into every new
+variant, and need to set up every declarative subroutine you require to
+build your variable package. The next option will allow you to use these
+functions.
+
+The L</subs> option is an array reference of subroutine names that are
+exported by the packages specified with L</importing>. These subroutines
+will be proxied from your declaration package to the variant to be
+generated.
+
+With L</importing> initializing your package and L</subs> declaring what
+subroutines you want to use to build a variant, you can now write a
+L</make_variant> method building your variants.
+
+=head3 Declaring a method to produce variants
+
+Every time a user requests a new variant a method named L</make_variant>
+will be called with the name of the target package and the arguments from
+the user.
+
+It can then use the proxied subroutines declared with L</subs> to
+customize the new package. An L</install> subroutine is exported as well
+allowing you to dynamically install methods into the new package. If these
+options aren't flexible enough, you can use the passed name of the new
+package to do any other kind of customizations.
+
+  sub make_variant {
+    my ($class, $target, @arguments) = @_;
+    # ...
+    # customization goes here
+    # ...
+  }
+
+When the method is finished, the user will receive the name of the new
+package variant you just set up.
+
+=head2 Using variable packages
+
+After your variable package is L<created|/Declaring a variable package>
+your users can get a variant generating subroutine by simply importing
+your package.
+
+  use My::Variant;
+  my $new_variant_package = Variant( @variant_arguments );
+
+The package is now fully initialized and used.
+
+=head2 Dynamic creation of variant packages
+
+For regular uses, the L<normal import|/Using variable packages> provides
+more than enough flexibility. However, if you want to create variations of
+dynamically determined packages, you can use the L</build_variation_of>
+method.
+
+You can use this to create variations of other packages and pass arguments
+on to them to allow more modular and extensible variations.
+
+=head1 OPTIONS
+
+These are the options that can be passed when importing
+C<Package::Variant>. They describe the environment in which the variants
+are created.
+
+  use Package::Variant
+    importing => { $package => \@import_arguments, ... },
+    subs      => [ @proxied_subroutines ];
+
+=head2 importing
+
+This option is a hash reference mapping package names to array references
+containing import arguments. The packages will be C<use>d with the given
+arguments by every variation before the L</make_variant> method is asked
+to create the package.
+
+=head2 subs
+
+An array reference of strings listing the names of subroutines that should
+be proxied. These subroutines are expected to be installed into the new
+variant package by the modules imported with L</importing>. Subroutines
+with the same name will be availabe in your declaration package, and will
+proxy through to the newly created package when used within
+L</make_variant>.
+
+=head1 VARIABLE PACKAGE METHODS
+
+These are methods on the variable package you declare when you import
+C<Package::Variant>.
+
+=head2 make_variant
+
+  Some::Variant::Package->make_variant( $target, @arguments );
+
+B<You need to provide this method.> This method will be called for every
+new variant of your package. This method should use the subroutines
+declared in L</subs> to customize the new variant package.
+
+This is a class method receiving the C<$target> package and the
+C<@arguments> defining the requested variant.
+
+=head2 import
+
+  use Some::Variant::Package;
+  my $variant_package = Package( @arguments );
+
+This method is provided for you. It will allow a user to C<use> your
+package and receive a subroutine taking C<@arguments> defining the variant
+and returning the name of the newly created variant package.
+
+=head1 C<Package::Variant> METHODS
+
+These methods are available on C<Package::Variant> itself.
+
+=head2 build_variation_of
+
+  my $variant_package = Package::Variant
+    ->build_variation_of( $variable_package, @arguments );
+
+This is the dynamic method of creating new variants. It takes the
+C<$variable_package>, which is a pre-declared variable package, and a set
+of C<@arguments> passed to the package to generate a new
+C<$variant_package>, which will be returned.
+
+=head2 import
+
+  use Package::Variant @options;
+
+Sets up the environment in which you declare the variants of your
+packages. See L</OPTIONS> for details on the available options and
+L</EXPORTS> for a list of exported subroutines.
+
+=head1 EXPORTS
+
+Additionally to the proxies for subroutines provided in L</subs>, the
+following exports will be available in your variable package:
+
+=head2 install
+
+  install( $method_name, $code_reference );
+
+Installs a method with the given C<$method_name> into the newly created
+variant package. The C<$code_reference> will be used as the body for the
+method.
+
+=head1 AUTHOR
+
+=over
+
+=item mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>
+
+=back
+
+=head1 COPYRIGHT
+
+Copyright (c) 2010-2011 the C<Package::Stash> L</AUTHOR> as listed above.
+
+=head1 LICENSE
+
+This library is free software and may be distributed under the same
+terms as perl itself.
+
+=cut
