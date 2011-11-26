@@ -2,6 +2,11 @@ use strictures 1;
 use Test::More qw(no_plan);
 
 BEGIN {
+  eval { require Moo::Role; 1 }
+    or plan skip_all => q{Requires Moo::Role};
+}
+
+BEGIN {
   package My::Role::OnOff;
 
   use Package::Variant
