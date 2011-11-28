@@ -36,9 +36,11 @@ BEGIN {
   $INC{'TestVariable.pm'} = __FILE__;
 }
 
-use TestVariable;
-
-my $variant = TestVariable(3..7);
+my $variant = do {
+    package TestScopeA;
+    use TestVariable;
+    TestVariable(3..7);
+};
 
 ok defined($variant), 'new variant is a defined value';
 ok length($variant), 'new variant has length';
@@ -52,5 +54,11 @@ is_deeply shift(@DECLARED), [args => [3..7]],
 is_deeply shift(@DECLARED), [class => 'TestVariable'],
   'class method resolution';
 is scalar(@DECLARED), 0, 'proxy sub called right amount of times';
+
+use TestVariable as => 'RenamedVar';
+is exception {
+  my $renamed = RenamedVar(9..12);
+  is_deeply $renamed->args, [9..12], 'imported generator can be renamed';
+}, undef, 'no errors for renamed usage';
 
 done_testing;
