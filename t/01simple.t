@@ -61,4 +61,28 @@ is exception {
   is_deeply $renamed->args, [9..12], 'imported generator can be renamed';
 }, undef, 'no errors for renamed usage';
 
+my @imported;
+BEGIN {
+  package TestImportableA;
+  sub import { push @imported, shift }
+  $INC{'TestImportableA.pm'} = __FILE__;
+  package TestImportableB;
+  sub import { push @imported, shift }
+  $INC{'TestImportableB.pm'} = __FILE__;
+  package TestArrayImports;
+  use Package::Variant
+    importing => [
+      TestImportableA => undef,
+      TestImportableB => undef,
+    ];
+  sub make_variant { }
+  $INC{'TestArrayImports.pm'} = __FILE__;
+}
+
+use TestArrayImports;
+TestArrayImports(23);
+
+is_deeply [@imported], [qw( TestImportableA TestImportableB )],
+  'multiple imports in the right order';
+
 done_testing;
