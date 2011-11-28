@@ -21,8 +21,10 @@ sub import {
   };
   *{"${target}::import"} = sub {
     my $target = caller;
+    my (undef, %arg) = @_;
+    my $as = defined($arg{as}) ? $arg{as} : $last;
     no strict 'refs';
-    *{"${target}::${last}"} = sub {
+    *{"${target}::${as}"} = sub {
       $me->build_variant_of($variable, @_);
     };
   };
@@ -176,7 +178,8 @@ your package.
   use My::Variant;
   my $new_variant_package = Variant( @variant_arguments );
 
-The package is now fully initialized and used.
+The package is now fully initialized and used. You can import the
+subroutine under a different name by specifying an C<as> argument.
 
 =head2 Dynamic creation of variant packages
 
@@ -238,6 +241,19 @@ C<@arguments> defining the requested variant.
 This method is provided for you. It will allow a user to C<use> your
 package and receive a subroutine taking C<@arguments> defining the variant
 and returning the name of the newly created variant package.
+
+The following options can be specified when importing:
+
+=over
+
+=item * B<as>
+
+  use Some::Variant::Package as => 'Foo';
+  my $variant_package = Foo( @arguments );
+
+Exports the generator subroutine under a different name than the default.
+
+=back
 
 =head1 C<Package::Variant> METHODS
 
