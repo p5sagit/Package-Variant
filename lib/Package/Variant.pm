@@ -1,6 +1,7 @@
 package Package::Variant;
 
 use strictures 1;
+use Carp qw( croak );
 
 our %Variable;
 
@@ -39,15 +40,39 @@ sub import {
   }
 }
 
+my $sanitize_importing = sub {
+  my ($me, $spec) = @_;
+  return []
+    unless defined $spec;
+  return [map [$_ => $spec->{$_}], keys %$spec]
+    if ref $spec eq 'HASH';
+  croak q{The 'importing' option has to be either a hash or array ref}
+    unless ref $spec eq 'ARRAY';
+  my @specced = @$spec;
+  my @imports;
+  while (@specced) {
+    push @imports, [shift(@specced), shift(@specced)];
+  }
+  return \@imports;
+};
+
 sub build_variant_of {
   my ($me, $variable, @args) = @_;
   my $variant_name = "${variable}::_Variant_".++$Variable{$variable}{anon};
-  my $import = $Variable{$variable}{args}{importing} || {};
+  my $import = $me
+    ->$sanitize_importing($Variable{$variable}{args}{importing});
   my $setup = join("\n",
     "package ${variant_name};",
     (map sprintf(
-      q!use %s @{$import->{'%s'}||[]};!, $_, quotemeta($_),
-    ), keys %$import),
+      q!use %s %s;!,
+      $import->[$_][0],
+      not(defined $import->[$_][1])
+        ? ''
+        : sprintf(
+          q!@{$import->[%d][1]}!,
+          $_,
+        ),
+    ), 0..$#$import),
     "1;",
   );
   eval $setup
@@ -207,6 +232,15 @@ This option is a hash reference mapping package names to array references
 containing import arguments. The packages will be C<use>d with the given
 arguments by every variation before the L</make_variant> method is asked
 to create the package.
+
+If import order is important to you, you can also pass the C<importing>
+arguments as a flag array reference:
+
+  use Package::Variant
+    importing => [ PackageA => [], PackageB => [] ];
+
+If you want to import whatever the package exports by default, you have to
+pass C<undef> instead of an empty array reference.
 
 =head2 subs
 
