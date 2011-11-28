@@ -103,7 +103,7 @@ Package::Variant - Parameterizable packages
   use strictures 1;
   use Package::Variant
     # what modules to 'use'
-    importing => { 'Moo::Role' => [] },
+    importing => { 'Moo::Role' => undef },
     # proxied subroutines
     subs => [qw( has around before after extends )],
 
@@ -161,7 +161,7 @@ to be C<use>d as keys, and array references containing the import
 arguments as values. These packages will be imported into every new
 variant, and need to set up every declarative subroutine you require to
 build your variable package. The next option will allow you to use these
-functions.
+functions. See L</importing> for more options.
 
 The L</subs> option is an array reference of subroutine names that are
 exported by the packages specified with L</importing>. These subroutines
