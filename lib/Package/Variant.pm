@@ -239,8 +239,8 @@ arguments as a flag array reference:
   use Package::Variant
     importing => [ PackageA => [], PackageB => [] ];
 
-If you want to import whatever the package exports by default, you have to
-pass C<undef> instead of an empty array reference.
+If you want to import whatever the package exports by default, you can
+also pass C<undef> instead of an empty array reference.
 
 =head2 subs
 
