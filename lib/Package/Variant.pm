@@ -40,8 +40,14 @@ sub import {
 sub build_variant_of {
   my ($me, $variable, @args) = @_;
   my $variant_name = "${variable}::_Variant_".++$Variable{$variable}{anon};
-  my @to_import = keys %{$Variable{$variable}{args}{importing}||{}};
-  my $setup = join("\n", "package ${variant_name};", (map "use $_;", @to_import), "1;");
+  my $import = $Variable{$variable}{args}{importing} || {};
+  my $setup = join("\n",
+    "package ${variant_name};",
+    (map sprintf(
+      q!use %s @{$import->{'%s'}||[]};!, $_, quotemeta($_),
+    ), keys %$import),
+    "1;",
+  );
   eval $setup
     or die "evaling ${setup} failed: $@";
   my $subs = $Variable{$variable}{subs};

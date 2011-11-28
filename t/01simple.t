@@ -7,7 +7,7 @@ my @DECLARED;
 
 BEGIN {
   package TestSugar;
-  use Exporter;
+  use Exporter 'import';
   our @EXPORT_OK = qw( declare );
   sub declare { push @DECLARED, [@_] }
   $INC{'TestSugar.pm'} = __FILE__;
@@ -49,7 +49,7 @@ is_deeply shift(@DECLARED), [target => $variant],
   'target passed via proxy';
 is_deeply shift(@DECLARED), [args => [3..7]],
   'arguments passed via proxy';
-is_deeply shift(@DECLARED), [class => $variant],
+is_deeply shift(@DECLARED), [class => 'TestVariable'],
   'class method resolution';
 is scalar(@DECLARED), 0, 'proxy sub called right amount of times';
 
