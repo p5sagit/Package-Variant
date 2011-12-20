@@ -72,8 +72,8 @@ BEGIN {
   package TestArrayImports;
   use Package::Variant
     importing => [
-      TestImportableA => undef,
-      TestImportableB => undef,
+      'TestImportableA',
+      'TestImportableB',
     ];
   sub make_variant { }
   $INC{'TestArrayImports.pm'} = __FILE__;

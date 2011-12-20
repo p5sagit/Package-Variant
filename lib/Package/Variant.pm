@@ -44,14 +44,26 @@ my $sanitize_importing = sub {
   my ($me, $spec) = @_;
   return []
     unless defined $spec;
-  return [map [$_ => $spec->{$_}], keys %$spec]
+  return [map {
+    my $import_args = $spec->{$_};
+    croak sprintf q{Import argument list for '%s' are is an array ref},
+      $_,
+      unless ref($import_args) and ref($import_args) eq 'ARRAY';
+    [$_ => $import_args];
+  } keys %$spec]
     if ref $spec eq 'HASH';
   croak q{The 'importing' option has to be either a hash or array ref}
     unless ref $spec eq 'ARRAY';
   my @specced = @$spec;
   my @imports;
   while (@specced) {
-    push @imports, [shift(@specced), shift(@specced)];
+    my $key = shift @specced;
+    push @imports, [
+      $key,
+      (ref($specced[0]) and ref($specced[0]) eq 'ARRAY')
+        ? shift(@specced)
+        : [],
+    ];
   }
   return \@imports;
 };
@@ -66,12 +78,12 @@ sub build_variant_of {
     (map sprintf(
       q!use %s %s;!,
       $import->[$_][0],
-      not(defined $import->[$_][1])
-        ? ''
-        : sprintf(
+      scalar(@{$import->[$_][1]})
+        ? sprintf(
           q!@{$import->[%d][1]}!,
           $_,
-        ),
+        )
+        : '',
     ), 0..$#$import),
     "1;",
   );
@@ -103,7 +115,7 @@ Package::Variant - Parameterizable packages
   use strictures 1;
   use Package::Variant
     # what modules to 'use'
-    importing => { 'Moo::Role' => undef },
+    importing => ['Moo::Role'],
     # proxied subroutines
     subs => [qw( has around before after extends )],
 
@@ -156,12 +168,13 @@ describe how you intend to build your variations.
     importing => { $package => \@import_arguments, ... },
     subs      => [ @proxied_subroutine_names ];
 
-The L</importing> option needs to be a hash reference with package names
-to be C<use>d as keys, and array references containing the import
-arguments as values. These packages will be imported into every new
+The L</importing> option needs to be a hash or array reference with
+package names to be C<use>d as keys, and array references containing the
+import arguments as values. These packages will be imported into every new
 variant, and need to set up every declarative subroutine you require to
 build your variable package. The next option will allow you to use these
-functions. See L</importing> for more options.
+functions. See L</importing> for more options. You can omit empty import
+argument lists when passing an array reference.
 
 The L</subs> option is an array reference of subroutine names that are
 exported by the packages specified with L</importing>. These subroutines
@@ -234,13 +247,21 @@ arguments by every variation before the L</make_variant> method is asked
 to create the package.
 
 If import order is important to you, you can also pass the C<importing>
-arguments as a flag array reference:
+arguments as a flat array reference:
 
   use Package::Variant
-    importing => [ PackageA => [], PackageB => [] ];
+    importing => [ 'PackageA', 'PackageB' ];
 
-If you want to import whatever the package exports by default, you can
-also pass C<undef> instead of an empty array reference.
+  # same as
+  use Package::Variant
+    importing => [ 'PackageA' => [], 'PackageB' => [] ];
+
+  # or
+  use Package::Variant
+    importing => { 'PackageA' => [], 'PackageB' => [] };
+
+The import method will be called even if the list of import arguments is
+empty or not specified,
 
 =head2 subs
 
