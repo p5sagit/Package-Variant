@@ -85,4 +85,16 @@ TestArrayImports(23);
 is_deeply [@imported], [qw( TestImportableA TestImportableB )],
   'multiple imports in the right order';
 
+like exception {
+  Package::Variant->import(
+    importing => \'foo', subs => [qw( foo )],
+  );
+}, qr/importing.+option.+hash.+array/i, 'invalid "importing" option';
+
+like exception {
+  Package::Variant->import(
+    importing => { foo => \'bar' }, subs => [qw( bar )],
+  );
+}, qr/import.+argument.+not.+array/i, 'invalid import argument list';
+
 done_testing;

@@ -5,6 +5,34 @@ use Carp qw( croak );
 
 our %Variable;
 
+my $sanitize_importing = sub {
+  my ($me, $spec) = @_;
+  return []
+    unless defined $spec;
+  return [map {
+    my $import_args = $spec->{$_};
+    croak sprintf q{Import argument list for '%s' is not an array ref},
+      $_,
+      unless ref($import_args) and ref($import_args) eq 'ARRAY';
+    [$_ => $import_args];
+  } keys %$spec]
+    if ref $spec eq 'HASH';
+  croak q{The 'importing' option has to be either a hash or array ref}
+    unless ref $spec eq 'ARRAY';
+  my @specced = @$spec;
+  my @imports;
+  while (@specced) {
+    my $key = shift @specced;
+    push @imports, [
+      $key,
+      (ref($specced[0]) and ref($specced[0]) eq 'ARRAY')
+        ? shift(@specced)
+        : [],
+    ];
+  }
+  return \@imports;
+};
+
 sub import {
   my $target = caller;
   my $me = shift;
@@ -15,7 +43,10 @@ sub import {
   no strict 'refs';
   $Variable{$variable} = {
     anon => $anon,
-    args => \%args,
+    args => {
+      %args,
+      importing => $me->$sanitize_importing($args{importing}),
+    },
     subs => {
       map +($_ => sub {}), @{$args{subs}||[]},
     },
@@ -40,39 +71,10 @@ sub import {
   }
 }
 
-my $sanitize_importing = sub {
-  my ($me, $spec) = @_;
-  return []
-    unless defined $spec;
-  return [map {
-    my $import_args = $spec->{$_};
-    croak sprintf q{Import argument list for '%s' are is an array ref},
-      $_,
-      unless ref($import_args) and ref($import_args) eq 'ARRAY';
-    [$_ => $import_args];
-  } keys %$spec]
-    if ref $spec eq 'HASH';
-  croak q{The 'importing' option has to be either a hash or array ref}
-    unless ref $spec eq 'ARRAY';
-  my @specced = @$spec;
-  my @imports;
-  while (@specced) {
-    my $key = shift @specced;
-    push @imports, [
-      $key,
-      (ref($specced[0]) and ref($specced[0]) eq 'ARRAY')
-        ? shift(@specced)
-        : [],
-    ];
-  }
-  return \@imports;
-};
-
 sub build_variant_of {
   my ($me, $variable, @args) = @_;
   my $variant_name = "${variable}::_Variant_".++$Variable{$variable}{anon};
-  my $import = $me
-    ->$sanitize_importing($Variable{$variable}{args}{importing});
+  my $import = $Variable{$variable}{args}{importing};
   my $setup = join("\n",
     "package ${variant_name};",
     (map sprintf(
