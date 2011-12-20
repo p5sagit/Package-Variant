@@ -275,6 +275,11 @@ arguments as a flat array reference:
 The import method will be called even if the list of import arguments is
 empty or not specified,
 
+If you just want to import a single package's default exports, you can
+also pass a string instead:
+
+  use PAckage::Variant importing => 'Package';
+
 =head2 subs
 
 An array reference of strings listing the names of subroutines that should
