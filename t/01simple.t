@@ -85,6 +85,21 @@ TestArrayImports(23);
 is_deeply [@imported], [qw( TestImportableA TestImportableB )],
   'multiple imports in the right order';
 
+BEGIN {
+  package TestSingleImport;
+  use Package::Variant importing => 'TestImportableA';
+  sub make_variant { }
+  $INC{'TestSingleImport.pm'} = __FILE__;
+}
+
+@imported = ();
+
+use TestSingleImport;
+TestSingleImport(23);
+
+is_deeply [@imported], [qw( TestImportableA )],
+  'scalar import works';
+
 like exception {
   Package::Variant->import(
     importing => \'foo', subs => [qw( foo )],
@@ -95,6 +110,18 @@ like exception {
   Package::Variant->import(
     importing => { foo => \'bar' }, subs => [qw( bar )],
   );
-}, qr/import.+argument.+not.+array/i, 'invalid import argument list';
+}, qr/import.+argument.+foo.+not.+array/i, 'invalid import argument list';
+
+like exception {
+  Package::Variant->import(
+    importing => [ foo => ['bar'], ['bam'], subs => [qw( bar )] ],
+  );
+}, qr/value.+3.+importing.+not.+string/i, 'importing array invalid key';
+
+like exception {
+  Package::Variant->import(
+    importing => [ foo => \'bam', subs => [qw( bar )] ],
+  );
+}, qr/value.+2.+foo.+importing.+array/i, 'importing array invalid list';
 
 done_testing;

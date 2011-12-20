@@ -9,26 +9,36 @@ my $sanitize_importing = sub {
   my ($me, $spec) = @_;
   return []
     unless defined $spec;
-  return [map {
-    my $import_args = $spec->{$_};
-    croak sprintf q{Import argument list for '%s' is not an array ref},
-      $_,
-      unless ref($import_args) and ref($import_args) eq 'ARRAY';
-    [$_ => $import_args];
-  } keys %$spec]
-    if ref $spec eq 'HASH';
-  croak q{The 'importing' option has to be either a hash or array ref}
-    unless ref $spec eq 'ARRAY';
-  my @specced = @$spec;
+  my @specced =
+    not(ref $spec)
+      ? ($spec)
+    : (ref($spec) eq 'ARRAY')
+      ? (@$spec)
+    : (ref($spec) eq 'HASH')
+      ? (map {
+          croak qq{The import argument list for '$_' is not an array ref}
+            unless ref($spec->{$_}) eq 'ARRAY';
+          ($_ => $spec->{$_});
+        } sort keys %$spec)
+    : croak q{The 'importing' option has to be either a hash or array ref};
   my @imports;
+  my $arg_count = 1;
   while (@specced) {
     my $key = shift @specced;
-    push @imports, [
-      $key,
-      (ref($specced[0]) and ref($specced[0]) eq 'ARRAY')
-        ? shift(@specced)
-        : [],
-    ];
+    croak qq{Value $arg_count in 'importing' is not a package string},
+      $arg_count
+      unless defined($key) and not(ref $key);
+    $arg_count++;
+    my $import_args =
+      (not(@specced) or (defined($specced[0]) and not ref($specced[0])))
+        ? []
+      : (ref($specced[0]) eq 'ARRAY')
+        ? do { $arg_count++; shift @specced }
+      : croak(
+            qq{Value $arg_count for package '$key' in 'importing' is not}
+          . qq{ a package string or array ref}
+        );
+    push @imports, [$key, $import_args];
   }
   return \@imports;
 };
