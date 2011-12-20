@@ -364,15 +364,15 @@ method.
 
 =head1 AUTHOR
 
-=over
+mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>
 
-=item mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>
+=head1 CONTRIBUTORS
 
-=back
+phaylon - Robert Sedlacek (cpan:PHAYLON) <r.sedlacek@shadowcat.co.uk>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2010-2011 the C<Package::Stash> L</AUTHOR> as listed above.
+Copyright (c) 2010-2011 the C<Package::Variant> L</AUTHOR> as listed above.
 
 =head1 LICENSE
 
