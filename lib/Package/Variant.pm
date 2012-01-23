@@ -372,7 +372,8 @@ phaylon - Robert Sedlacek (cpan:PHAYLON) <r.sedlacek@shadowcat.co.uk>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2010-2011 the C<Package::Variant> L</AUTHOR> as listed above.
+Copyright (c) 2010-2011 the C<Package::Variant> L</AUTHOR> and
+L</CONTRIBUTORS> as listed above.
 
 =head1 LICENSE
 
