@@ -3,6 +3,10 @@ package Package::Variant;
 use strictures 1;
 use Carp qw( croak );
 
+our $VERSION = '1.000000'; # 1.0.0
+
+$VERSION = eval $VERSION;
+
 our %Variable;
 
 my $sanitize_importing = sub {
