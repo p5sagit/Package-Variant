@@ -1,7 +1,9 @@
 package Package::Variant;
 
 use strictures 1;
-use Carp qw( croak );
+use Import::Into;
+use Module::Runtime qw(use_module);
+use Carp qw(croak);
 
 our $VERSION = '1.000000'; # 1.0.0
 
@@ -92,23 +94,10 @@ sub import {
 sub build_variant_of {
   my ($me, $variable, @args) = @_;
   my $variant_name = "${variable}::_Variant_".++$Variable{$variable}{anon};
-  my $import = $Variable{$variable}{args}{importing};
-  my $setup = join("\n",
-    "package ${variant_name};",
-    (map sprintf(
-      q!use %s %s;!,
-      $import->[$_][0],
-      scalar(@{$import->[$_][1]})
-        ? sprintf(
-          q!@{$import->[%d][1]}!,
-          $_,
-        )
-        : '',
-    ), 0..$#$import),
-    "1;",
-  );
-  eval $setup
-    or die "evaling ${setup} failed: $@";
+  foreach my $to_import (@{$Variable{$variable}{args}{importing}}) {
+    my ($pkg, $args) = @$to_import;
+    use_module($pkg)->import::into($variant_name, @{$args});
+  }
   my $subs = $Variable{$variable}{subs};
   local @{$subs}{keys %$subs} = map $variant_name->can($_), keys %$subs;
   local $Variable{$variable}{install} = sub {

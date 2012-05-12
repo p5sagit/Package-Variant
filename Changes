@@ -1,3 +1,4 @@
+  - Switch to Import::Into for exporting other things
   - Use Sub::Name to name installed things if available
 
 1.000000 - 2012-01-23
