@@ -47,6 +47,10 @@ my $sanitize_importing = sub {
   return \@imports;
 };
 
+my $sub_namer = eval {
+  require Sub::Name; sub { shift if @_ > 2; Sub::Name::subname(@_) }
+} || sub { $_[-1] };
+
 sub import {
   my $target = caller;
   my $me = shift;
@@ -108,9 +112,12 @@ sub build_variant_of {
   my $subs = $Variable{$variable}{subs};
   local @{$subs}{keys %$subs} = map $variant_name->can($_), keys %$subs;
   local $Variable{$variable}{install} = sub {
-    my ($name, $ref) = @_;
+    my $full_name = "${variant_name}::".shift;
+
+    my $ref = $sub_namer->($full_name, @_);
+    
     no strict 'refs';
-    *{"${variant_name}::${name}"} = $ref;
+    *$full_name = $ref;
   };
   $variable->make_variant($variant_name, @args);
   return $variant_name;
