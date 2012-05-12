@@ -5,7 +5,7 @@ use Import::Into;
 use Module::Runtime qw(use_module);
 use Carp qw(croak);
 
-our $VERSION = '1.000000'; # 1.0.0
+our $VERSION = '1.001000'; # 1.1.0
 
 $VERSION = eval $VERSION;
 
@@ -129,7 +129,7 @@ Package::Variant - Parameterizable packages
     # what modules to 'use'
     importing => ['Moo::Role'],
     # proxied subroutines
-    subs => [qw( has around before after extends )],
+    subs => [ qw(has around before after with) ],
 
   sub make_variant {
     my ($class, $target_package, %arguments) = @_;
@@ -226,7 +226,7 @@ your users can get a variant generating subroutine by simply importing
 your package.
 
   use My::Variant;
-  my $new_variant_package = Variant( @variant_arguments );
+  my $new_variant_package = Variant(@variant_arguments);
 
 The package is now fully initialized and used. You can import the
 subroutine under a different name by specifying an C<as> argument.
@@ -254,9 +254,9 @@ are created.
 =head2 importing
 
 This option is a hash reference mapping package names to array references
-containing import arguments. The packages will be C<use>d with the given
+containing import arguments. The packages will be imported with the given
 arguments by every variation before the L</make_variant> method is asked
-to create the package.
+to create the package (this is done using L<Import::Into>).
 
 If import order is important to you, you can also pass the C<importing>
 arguments as a flat array reference:
@@ -278,7 +278,7 @@ empty or not specified,
 If you just want to import a single package's default exports, you can
 also pass a string instead:
 
-  use PAckage::Variant importing => 'Package';
+  use Package::Variant importing => 'Package';
 
 =head2 subs
 
@@ -321,7 +321,7 @@ The following options can be specified when importing:
 =item * B<as>
 
   use Some::Variant::Package as => 'Foo';
-  my $variant_package = Foo( @arguments );
+  my $variant_package = Foo(@arguments);
 
 Exports the generator subroutine under a different name than the default.
 
@@ -334,7 +334,7 @@ These methods are available on C<Package::Variant> itself.
 =head2 build_variation_of
 
   my $variant_package = Package::Variant
-    ->build_variation_of( $variable_package, @arguments );
+    ->build_variation_of($variable_package, @arguments);
 
 This is the dynamic method of creating new variants. It takes the
 C<$variable_package>, which is a pre-declared variable package, and a set
@@ -356,11 +356,14 @@ following exports will be available in your variable package:
 
 =head2 install
 
-  install( $method_name, $code_reference );
+  install($method_name, $code_reference);
 
 Installs a method with the given C<$method_name> into the newly created
 variant package. The C<$code_reference> will be used as the body for the
-method.
+method, and if L<Sub::Name> is available the coderef will be named. If you
+want to name it something else, then use:
+
+  install($method_name, $name_to_use, $code_reference);
 
 =head1 AUTHOR
 
@@ -372,7 +375,7 @@ phaylon - Robert Sedlacek (cpan:PHAYLON) <r.sedlacek@shadowcat.co.uk>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2010-2011 the C<Package::Variant> L</AUTHOR> and
+Copyright (c) 2010-2012 the C<Package::Variant> L</AUTHOR> and
 L</CONTRIBUTORS> as listed above.
 
 =head1 LICENSE
