@@ -1,3 +1,5 @@
+  - Actually declare the Import::Into dependency (stupid mst)
+
 1.001000 - 2012-05-12
   - Switch to Import::Into for exporting other things
   - Use Sub::Name to name installed things if available

@@ -10,5 +10,7 @@ WriteMakefile(
   PREREQ_PM => {
     strictures => 1,
     Carp => 0,
+    'Import::Into' => 1,
+    'Module::Runtime' => '0.013',
   },
 );
