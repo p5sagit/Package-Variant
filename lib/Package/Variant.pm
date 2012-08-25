@@ -64,6 +64,7 @@ sub import {
   $Variable{$variable} = {
     anon => $anon,
     args => {
+      make_variant => 'make_variant',
       %args,
       importing => $me->$sanitize_importing($args{importing}),
     },
@@ -79,7 +80,7 @@ sub import {
     *{"${target}::${as}"} = sub {
       $me->build_variant_of($variable, @_);
     };
-  };
+  } unless $args{no_import};
   my $subs = $Variable{$variable}{subs};
   foreach my $name (keys %$subs) {
     *{"${target}::${name}"} = sub {
@@ -108,7 +109,7 @@ sub build_variant_of {
     no strict 'refs';
     *$full_name = $ref;
   };
-  $variable->make_variant($variant_name, @args);
+  $variable->${\$Variable{$variable}{args}{make_variant}}($variant_name, @args);
   return $variant_name;
 }
 
