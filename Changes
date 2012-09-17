@@ -1,3 +1,5 @@
+  - Declare the Test::Fatal build dependency
+
 1.001001 - 2012-05-12
   - Actually declare the Import::Into dependency (stupid mst)
 
