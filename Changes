@@ -1,3 +1,5 @@
+  - fix NAME in Makefile.PL (RT#84209)
+
 1.001002 - 2012-09-19
   - Declare the Test::Fatal build dependency
 

@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 (do 'maint/Makefile.PL.include' or die $@) unless -f 'META.yml';
 
 WriteMakefile(
-  NAME => 'Package-Variant',
+  NAME => 'Package::Variant',
   VERSION_FROM => 'lib/Package/Variant.pm',
   CONFIGURE_REQUIRES => {
     'ExtUtils::MakeMaker' => '6.55_01', # for BUILD_REQUIRES
