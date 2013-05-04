@@ -235,7 +235,7 @@ subroutine under a different name by specifying an C<as> argument.
 
 For regular uses, the L<normal import|/Using variable packages> provides
 more than enough flexibility. However, if you want to create variations of
-dynamically determined packages, you can use the L</build_variation_of>
+dynamically determined packages, you can use the L</build_variant_of>
 method.
 
 You can use this to create variations of other packages and pass arguments
@@ -331,10 +331,10 @@ Exports the generator subroutine under a different name than the default.
 
 These methods are available on C<Package::Variant> itself.
 
-=head2 build_variation_of
+=head2 build_variant_of
 
   my $variant_package = Package::Variant
-    ->build_variation_of($variable_package, @arguments);
+    ->build_variant_of($variable_package, @arguments);
 
 This is the dynamic method of creating new variants. It takes the
 C<$variable_package>, which is a pre-declared variable package, and a set

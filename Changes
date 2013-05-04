@@ -1,3 +1,7 @@
+
+  - fix documentation of "build_variant_of" method (RT#84554 -- thanks,
+    Scott Miller!)
+
 1.001003 - 2013-03-25
   - fix NAME in Makefile.PL (RT#84209)
 
