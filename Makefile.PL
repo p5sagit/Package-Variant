@@ -26,5 +26,7 @@ WriteMakefile(
       repository => 'git://git.shadowcat.co.uk/p5sagit/Package-Variant.git',
       homepage => 'http://git.shadowcat.co.uk/gitweb/gitweb.cgi?p=p5sagit/Package-Variant.git',
     },
+
+    no_index => { package => [ 'string' ] },
   },
 );
