@@ -1,20 +1,21 @@
+Revision history for Package-Variant
 
-1.001004 - 2013-05-04
+1.001004   2013-05-04
   - fix documentation of "build_variant_of" method (RT#84554 -- thanks,
     Scott Miller!)
 
-1.001003 - 2013-03-25
+1.001003   2013-03-25
   - fix NAME in Makefile.PL (RT#84209)
 
-1.001002 - 2012-09-19
+1.001002   2012-09-19
   - Declare the Test::Fatal build dependency
 
-1.001001 - 2012-05-12
+1.001001   2012-05-12
   - Actually declare the Import::Into dependency (stupid mst)
 
-1.001000 - 2012-05-12
+1.001000   2012-05-12
   - Switch to Import::Into for exporting other things
   - Use Sub::Name to name installed things if available
 
-1.000000 - 2012-01-23
+1.000000   2012-01-23
   - initial release
