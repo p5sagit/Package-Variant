@@ -24,10 +24,16 @@ WriteMakefile(
 
     resources => {
       # r/w: p5sagit@git.shadowcat.co.uk:Package-Variant.git
-      repository => 'git://git.shadowcat.co.uk/p5sagit/Package-Variant.git',
-      homepage => 'http://git.shadowcat.co.uk/gitweb/gitweb.cgi?p=p5sagit/Package-Variant.git',
+      repository => {
+        url => 'git://git.shadowcat.co.uk/p5sagit/Package-Variant.git',
+        web => 'http://git.shadowcat.co.uk/gitweb/gitweb.cgi?p=p5sagit/Package-Variant.git',
+        type => 'git',
+      },
+      bugtracker => {
+          mailto => 'bug-Package-Variant@rt.cpan.org',
+          web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Package-Variant',
+      },
     },
-
     no_index => { package => [ 'string' ] },
   },
 );
