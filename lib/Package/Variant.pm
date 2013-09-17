@@ -161,7 +161,7 @@ This module allows you to build packages that return different variations
 depending on what parameters are given.
 
 Users of your package will receive a subroutine able to take parameters
-and return the name of a suitable variant package. The implmenetation does
+and return the name of a suitable variant package. The implementation does
 not care about what kind of package it builds.
 
 =head2 Declaring a variable package
@@ -285,7 +285,7 @@ also pass a string instead:
 An array reference of strings listing the names of subroutines that should
 be proxied. These subroutines are expected to be installed into the new
 variant package by the modules imported with L</importing>. Subroutines
-with the same name will be availabe in your declaration package, and will
+with the same name will be available in your declaration package, and will
 proxy through to the newly created package when used within
 L</make_variant>.
 
