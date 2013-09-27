@@ -100,6 +100,13 @@ TestSingleImport(23);
 is_deeply [@imported], [qw( TestImportableA )],
   'scalar import works';
 
+@imported = ();
+
+TestSingleImport::->build_variant;
+
+is_deeply [@imported], [qw( TestImportableA )],
+  'build_variant works';
+
 like exception {
   Package::Variant->import(
     importing => \'foo', subs => [qw( foo )],

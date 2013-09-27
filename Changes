@@ -1,5 +1,7 @@
 Revision history for Package-Variant
 
+  - add build_variant method on variable packages, to allow avoiding
+    importing a generator sub
   - fix pragmas applied by modules listed in "importing" from leaking out
     into unexpected scopes
 

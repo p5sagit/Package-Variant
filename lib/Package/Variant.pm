@@ -87,7 +87,11 @@ sub import {
   }
   *{"${variable}::install"} = sub {
     goto &{$Variable{$variable}{install}};
-  }
+  };
+  *{"${variable}::build_variant"} = sub {
+    shift;
+    $me->build_variant_of($variable, @_);
+  };
 }
 
 sub build_variant_of {
@@ -327,6 +331,16 @@ The following options can be specified when importing:
 Exports the generator subroutine under a different name than the default.
 
 =back
+
+=head2 build_variant
+
+  use Some::Variant::Package ();
+  my $variant_package = Some::Variant::Package->build_variant( @arguments );
+
+This method is provided for you.  It will generate a variant package
+and return its name, just like the generator sub provided by
+L</import>.  This allows you to avoid importing anything into the
+consuming package.
 
 =head1 C<Package::Variant> METHODS
 
