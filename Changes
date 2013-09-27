@@ -1,5 +1,8 @@
 Revision history for Package-Variant
 
+  - fix pragmas applied by modules listed in "importing" from leaking out
+    into unexpected scopes
+
 1.001004   2013-05-04
   - fix documentation of "build_variant_of" method (RT#84554 -- thanks,
     Scott Miller!)

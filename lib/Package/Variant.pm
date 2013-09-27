@@ -2,7 +2,7 @@ package Package::Variant;
 
 use strictures 1;
 use Import::Into;
-use Module::Runtime qw(use_module);
+use Module::Runtime qw(require_module);
 use Carp qw(croak);
 
 our $VERSION = '1.001004'; # 1.1.4
@@ -96,7 +96,9 @@ sub build_variant_of {
   my $variant_name = "${variable}::_Variant_".++$Variable{$variable}{anon};
   foreach my $to_import (@{$Variable{$variable}{args}{importing}}) {
     my ($pkg, $args) = @$to_import;
-    use_module($pkg)->import::into($variant_name, @{$args});
+    require_module $pkg;
+    eval q{ BEGIN { $pkg->import::into($variant_name, @{$args}) }; 1; }
+      or die $@;
   }
   my $subs = $Variable{$variable}{subs};
   local @{$subs}{keys %$subs} = map $variant_name->can($_), keys %$subs;
