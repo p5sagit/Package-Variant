@@ -54,11 +54,10 @@ my $sub_namer = eval {
 } || sub { $_[-1] };
 
 sub import {
-  my $target = caller;
+  my $variable = caller;
   my $me = shift;
-  my $last = (split '::', $target)[-1];
+  my $last = (split '::', $variable)[-1];
   my $anon = 'A000';
-  my $variable = $target;
   my %args = @_;
   no strict 'refs';
   $Variable{$variable} = {
@@ -71,7 +70,7 @@ sub import {
       map +($_ => sub {}), @{$args{subs}||[]},
     },
   };
-  *{"${target}::import"} = sub {
+  *{"${variable}::import"} = sub {
     my $target = caller;
     my (undef, %arg) = @_;
     my $as = defined($arg{as}) ? $arg{as} : $last;
@@ -82,11 +81,11 @@ sub import {
   };
   my $subs = $Variable{$variable}{subs};
   foreach my $name (keys %$subs) {
-    *{"${target}::${name}"} = sub {
+    *{"${variable}::${name}"} = sub {
       goto &{$subs->{$name}}
     };
   }
-  *{"${target}::install"} = sub {
+  *{"${variable}::install"} = sub {
     goto &{$Variable{$variable}{install}};
   }
 }
