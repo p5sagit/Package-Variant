@@ -388,6 +388,8 @@ mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>
 
 phaylon - Robert Sedlacek (cpan:PHAYLON) <r.sedlacek@shadowcat.co.uk>
 
+haarg - Graham Knop (cpan:HAARG) <haarg@haarg.org>
+
 =head1 COPYRIGHT
 
 Copyright (c) 2010-2012 the C<Package::Variant> L</AUTHOR> and
