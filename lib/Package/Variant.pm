@@ -1,8 +1,7 @@
 package Package::Variant;
 
 use strictures 1;
-use Import::Into;
-use Module::Runtime qw(require_module);
+use Module::Runtime qw(require_module module_notional_filename);
 use Carp qw(croak);
 
 our $VERSION = '1.002000'; # 1.2.0
@@ -97,23 +96,28 @@ sub import {
 sub build_variant_of {
   my ($me, $variable, @args) = @_;
   my $variant_name = "${variable}::_Variant_".++$Variable{$variable}{anon};
-  foreach my $to_import (@{$Variable{$variable}{args}{importing}}) {
-    my ($pkg, $args) = @$to_import;
-    require_module $pkg;
-    eval q{ BEGIN { $pkg->import::into($variant_name, @{$args}) }; 1; }
-      or die $@;
+  my $build = "package $variant_name;\n";
+  my $importing = $Variable{$variable}{args}{importing};
+  foreach my $i (0 .. $#$importing) {
+    my $pkg = $importing->[$i][0];
+    $build .= "use $pkg \@{\$importing->[$i][1]};\n";
   }
   my $subs = $Variable{$variable}{subs};
-  local @{$subs}{keys %$subs} = map $variant_name->can($_), keys %$subs;
-  local $Variable{$variable}{install} = sub {
-    my $full_name = "${variant_name}::".shift;
+  my $builder = sub {
+    local @{$subs}{keys %$subs} = map $variant_name->can($_), keys %$subs;
+    local $Variable{$variable}{install} = sub {
+      my $full_name = "${variant_name}::".shift;
 
-    my $ref = $sub_namer->($full_name, @_);
-    
-    no strict 'refs';
-    *$full_name = $ref;
+      my $ref = $sub_namer->($full_name, @_);
+
+      no strict 'refs';
+      *$full_name = $ref;
+    };
+    $variable->make_variant($variant_name, @args);
   };
-  $variable->make_variant($variant_name, @args);
+  $build .= "BEGIN { \$builder->() }\n1;\n";
+  eval $build or die $@;
+  $INC{module_notional_filename($variant_name)} = '(built by Package::Variant)';
   return $variant_name;
 }
 
