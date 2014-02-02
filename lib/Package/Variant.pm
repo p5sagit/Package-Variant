@@ -134,7 +134,7 @@ Package::Variant - Parameterizable packages
     # what modules to 'use'
     importing => ['Moo::Role'],
     # proxied subroutines
-    subs => [ qw(has around before after with) ],
+    subs => [ qw(has around before after with) ];
 
   sub make_variant {
     my ($class, $target_package, %arguments) = @_;
