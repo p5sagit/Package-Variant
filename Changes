@@ -1,5 +1,7 @@
 Revision history for Package-Variant
 
+  - added API for creating named variants
+
 1.002002 - 2014-08-21
   - fix license in metadata
 

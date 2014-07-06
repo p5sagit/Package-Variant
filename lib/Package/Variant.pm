@@ -78,6 +78,9 @@ sub import {
     *{"${target}::${as}"} = sub {
       $me->build_variant_of($variable, @_);
     };
+    *{"${target}::${as}_named"} = sub {
+      $me->build_named_variant_of($variable, @_);
+    };
   };
   my $subs = $Variable{$variable}{subs};
   foreach my $name (keys %$subs) {
@@ -92,11 +95,26 @@ sub import {
     shift;
     $me->build_variant_of($variable, @_);
   };
-}
+  *{"${variable}::build_named_variant"} = sub {
+    shift;
+    $me->build_named_variant_of($variable, @_);
+  };
+  }
 
 sub build_variant_of {
   my ($me, $variable, @args) = @_;
+  my $variant_name = $me->_name_for($variable);
+  return $me->build_named_variant_of($variable, $variant_name, @args)
+}
+
+sub _name_for {
+  my (undef, $variable) = @_;
   my $variant_name = "${variable}::_Variant_".++$Variable{$variable}{anon};
+  return $variant_name;
+}
+
+sub build_named_variant_of {
+  my ($me, $variable, $variant_name, @args) = @_;
   foreach my $to_import (@{$Variable{$variable}{args}{importing}}) {
     my ($pkg, $args) = @$to_import;
     require_module $pkg;
@@ -156,9 +174,12 @@ Package::Variant - Parameterizable packages
 
   with ObjectAttr(name => 'some_obj', class => 'Some::Class');
 
+  with ObjectAttr_named("NamedVariant", name => 'named_obj', class => 'Named');
+
   # using our class
   my $obj = My::Class::WithObjectAttr->new;
   $obj->some_obj; # returns a Some::Class instance
+  die if !$obj->does("NamedVariant"); # works fine
 
 =head1 DESCRIPTION
 
@@ -166,8 +187,9 @@ This module allows you to build a variable package that contains a package
 template and can use it to build variant packages at runtime.
 
 Your variable package will export a subroutine which will build a variant
-package, combining its arguments with the template, and return the name of the
-new variant package.
+package, combining its arguments with the template, and return the generated
+name of the new variant package. Additionally it will export a subroutine that
+can build variant packages with user-defined package names.
 
 The implementation does not care about what kind of packages it builds, be they
 simple function exporters, classes, singletons or something entirely different.
@@ -320,10 +342,12 @@ C<@arguments> defining the requested variant.
 
   use Some::Variant::Package;
   my $variant_package = Package( @arguments );
+  my $named_variant_package = Package_named("VariantName", @arguments );
 
 This method is provided for you. It will allow a user to C<use> your
 package and receive a subroutine taking C<@arguments> defining the variant
-and returning the name of the newly created variant package.
+and returning the name of the newly created variant package, as well as a
+subroutine which takes a package name for the newly created variant package.
 
 The following options can be specified when importing:
 
@@ -348,6 +372,14 @@ and return its name, just like the generator sub provided by
 L</import>.  This allows you to avoid importing anything into the
 consuming package.
 
+=head2 build_named_variant
+
+  use Some::Variant::Package ();
+  my $named = Some::Variant::Package->build_named_variant( "Named", @args );
+
+Does the same thing as C<build_variant>, but takes additionally a name for the
+newly created variant package.
+
 =head1 C<Package::Variant> METHODS
 
 These methods are available on C<Package::Variant> itself.
@@ -361,6 +393,14 @@ This is the dynamic method of creating new variants. It takes the
 C<$variable_package>, which is a pre-declared variable package, and a set
 of C<@arguments> passed to the package to generate a new
 C<$variant_package>, which will be returned.
+
+=head2 build_named_variant_of
+
+  my $named_variant_package = Package::Variant
+    ->build_variant_of($variable_package, "VariantName", @arguments);
+
+Does the same thing as C<build_variant_of>, but takes additionally a name for
+the newly created variant package.
 
 =head2 import
 
@@ -395,6 +435,8 @@ mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>
 phaylon - Robert Sedlacek (cpan:PHAYLON) <r.sedlacek@shadowcat.co.uk>
 
 haarg - Graham Knop (cpan:HAARG) <haarg@haarg.org>
+
+Mithaldu - Christian Walde (cpan:MITHALDU) <walde.christian@gmail.com>
 
 =head1 COPYRIGHT
 

@@ -36,24 +36,29 @@ BEGIN {
   $INC{'TestVariable.pm'} = __FILE__;
 }
 
-my $variant = do {
+my ($variant, $named_variant) = do {
     package TestScopeA;
     use TestVariable;
-    TestVariable(3..7);
+    (TestVariable(3..7), TestVariable_named("Name", 3..7));
 };
 
-ok defined($variant), 'new variant is a defined value';
-ok length($variant), 'new variant has length';
-is $variant->target, $variant, 'target was new variant';
-is_deeply $variant->args, [3..7], 'correct arguments received';
+for ($variant, $named_variant) {
+  ok defined($_), 'new variant is a defined value';
+  ok length($_), 'new variant has length';
+  is $_->target, $_, 'target was new variant';
+  is_deeply $_->args, [3..7], 'correct arguments received';
 
-is_deeply shift(@DECLARED), [target => $variant],
-  'target passed via proxy';
-is_deeply shift(@DECLARED), [args => [3..7]],
-  'arguments passed via proxy';
-is_deeply shift(@DECLARED), [class => 'TestVariable'],
-  'class method resolution';
+  is_deeply shift(@DECLARED), [target => $_],
+    'target passed via proxy';
+  is_deeply shift(@DECLARED), [args => [3..7]],
+    'arguments passed via proxy';
+  is_deeply shift(@DECLARED), [class => 'TestVariable'],
+    'class method resolution';
+}
+
 is scalar(@DECLARED), 0, 'proxy sub called right amount of times';
+
+ok $named_variant->isa("Name"), 'created class can be named';
 
 use TestVariable as => 'RenamedVar';
 is exception {
@@ -103,6 +108,14 @@ is_deeply [@imported], [qw( TestImportableA )],
 @imported = ();
 
 TestSingleImport::->build_variant;
+
+is_deeply [@imported], [qw( TestImportableA )],
+  'build_variant works';
+
+@imported = ();
+
+is( TestSingleImport::->build_named_variant("Named"), "Named",
+  "build_named_variant applies name" );
 
 is_deeply [@imported], [qw( TestImportableA )],
   'build_variant works';
