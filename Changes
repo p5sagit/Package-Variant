@@ -1,5 +1,7 @@
 Revision history for Package-Variant
 
+  - documentation fixes and clarifications
+
 1.002000 - 2013-12-10
   - add build_variant method on variable packages, to allow avoiding
     importing a generator sub

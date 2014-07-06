@@ -162,19 +162,23 @@ Package::Variant - Parameterizable packages
 
 =head1 DESCRIPTION
 
-This module allows you to build a variable package that returns different
-variant packages depending on what parameters are given.
+This module allows you to build a variable package that contains a package
+template and can use it to build variant packages at runtime.
 
-Users of your variable package will receive a subroutine able to take parameters
-and return the name of a suitable variant package. The implementation does
-not care about what kind of variant package it builds.
+Your variable package will export a subroutine which will build a variant
+package, combining its arguments with the template, and return the name of the
+new variant package.
+
+The implementation does not care about what kind of packages it builds, be they
+simple function exporters, classes, singletons or something entirely different.
 
 =head2 Declaring a variable package
 
 There are two important parts to creating a variable package. You first
 have to give C<Package::Variant> some basic information about what kind of
 variant packages you want to provide, and how. The second part is implementing a
-method receiving the user's arguments and generating your variant packages.
+method which builds the components of the variant packages that use the user's
+arguments or cannot be provided with a static import.
 
 =head3 Setting up the environment for building variants
 
@@ -188,10 +192,11 @@ describe how you intend to build your variants.
 The L</importing> option needs to be a hash or array reference with
 package names to be C<use>d as keys, and array references containing the
 import arguments as values. These packages will be imported into every new
-variant package, and need to set up every declarative subroutine you require to
-build your variable package. The next option will allow you to use these
-functions. See L</importing> for more options. You can omit empty import
-argument lists when passing an array reference.
+variant package, to provide static functionality of the variant packages and to
+set up every declarative subroutine you require to build variants package
+components. The next option will allow you to use these functions. See
+L</importing> for more options. You can omit empty import argument lists when
+passing an array reference.
 
 The L</subs> option is an array reference of subroutine names that are
 exported by the packages specified with L</importing>. These subroutines
@@ -204,7 +209,7 @@ L</make_variant> method building your variants.
 
 =head3 Declaring a method to produce variants
 
-Every time a user requests a new variant a method named L</make_variant>
+Every time a user requests a new variant, a method named L</make_variant>
 will be called with the name of the target package and the arguments from
 the user.
 
@@ -227,7 +232,7 @@ package you just set up.
 =head2 Using variable packages
 
 After your variable package is L<created|/Declaring a variable package>
-your users can get a variant generating subroutine by simply importing
+your users can get a variant generator subroutine by simply importing
 your package.
 
   use My::Variant;
