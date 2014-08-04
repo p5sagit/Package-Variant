@@ -16,6 +16,7 @@ WriteMakefile(
     Carp => 0,
     'Import::Into' => 1,
     'Module::Runtime' => '0.013',
+    'perl' => 5.006,
   },
 
   META_MERGE => {
