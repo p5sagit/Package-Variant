@@ -1,40 +1,74 @@
 use strict;
 use warnings FATAL => 'all';
-use ExtUtils::MakeMaker;
 
+my %META = (
+  name => 'Package-Variant',
+  prereqs => {
+    test => { requires => {
+      'Test::Fatal' => 0,
+    }, },
+    runtime => { requires => {
+      'perl' => 5.006,
+      'strictures' => 1,
+      'Carp' => 0,
+      'Import::Into' => 1,
+      'Module::Runtime' => '0.013',
+    }, },
+  },
+  dynamic_config => 0,
+  resources => {
+    # r/w: p5sagit@git.shadowcat.co.uk:Package-Variant.git
+    repository => {
+      url => 'git://git.shadowcat.co.uk/p5sagit/Package-Variant.git',
+      web => 'http://git.shadowcat.co.uk/gitweb/gitweb.cgi?p=p5sagit/Package-Variant.git',
+      type => 'git',
+    },
+    bugtracker => {
+      mailto => 'bug-Package-Variant@rt.cpan.org',
+      web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Package-Variant',
+    },
+  },
+  no_index => { directory => [ 't', 'xt', ], package => [ 'string' ] },
+);
+
+my %MM_ARGS = ();
+
+##############################################################################
+require ExtUtils::MakeMaker;
 (do 'maint/Makefile.PL.include' or die $@) unless -f 'META.yml';
 
-WriteMakefile(
-  NAME => 'Package::Variant',
-  VERSION_FROM => 'lib/Package/Variant.pm',
-  CONFIGURE_REQUIRES => {
-    'ExtUtils::MakeMaker' => '6.55_01', # for BUILD_REQUIRES
-  },
-  BUILD_REQUIRES => { 'Test::Fatal' => 0 },
-  PREREQ_PM => {
-    strictures => 1,
-    Carp => 0,
-    'Import::Into' => 1,
-    'Module::Runtime' => '0.013',
-    'perl' => 5.006,
-  },
+# have to do this since old EUMM dev releases miss the eval $VERSION line
+my $eumm_version  = eval $ExtUtils::MakeMaker::VERSION;
+my $mymeta        = $eumm_version >= 6.57_02;
+my $mymeta_broken = $mymeta && $eumm_version < 6.57_07;
 
-  META_MERGE => {
-    'meta-spec' => { version => 2 },
-    dynamic_config => 0,
+($MM_ARGS{NAME} = $META{name}) =~ s/-/::/g;
+($MM_ARGS{VERSION_FROM} = "lib/$MM_ARGS{NAME}.pm") =~ s{::}{/}g;
+$MM_ARGS{LICENSE} = $META{license}
+  if $eumm_version >= 6.30;
+$MM_ARGS{NO_MYMETA} = 1
+  if $mymeta_broken;
+$MM_ARGS{META_ADD} = { 'meta-spec' => { version => 2 }, %META }
+  unless -f 'META.yml';
 
-    resources => {
-      # r/w: p5sagit@git.shadowcat.co.uk:Package-Variant.git
-      repository => {
-        url => 'git://git.shadowcat.co.uk/p5sagit/Package-Variant.git',
-        web => 'http://git.shadowcat.co.uk/gitweb/gitweb.cgi?p=p5sagit/Package-Variant.git',
-        type => 'git',
-      },
-      bugtracker => {
-          mailto => 'bug-Package-Variant@rt.cpan.org',
-          web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Package-Variant',
-      },
-    },
-    no_index => { package => [ 'string' ] },
-  },
-);
+for (qw(configure build test runtime)) {
+  my $key = $_ eq 'runtime' ? 'PREREQ_PM' : uc $_.'_REQUIRES';
+  my $r = $MM_ARGS{$key} = {
+    %{$META{prereqs}{$_}{requires} || {}},
+    %{delete $MM_ARGS{$key} || {}},
+  };
+  defined $r->{$_} or delete $r->{$_} for keys %$r;
+}
+
+$MM_ARGS{MIN_PERL_VERSION} = delete $MM_ARGS{PREREQ_PM}{perl} || 0;
+
+delete $MM_ARGS{MIN_PERL_VERSION}
+  if $eumm_version < 6.47_01;
+$MM_ARGS{BUILD_REQUIRES} = {%{$MM_ARGS{BUILD_REQUIRES}}, %{delete $MM_ARGS{TEST_REQUIRES}}}
+  if $eumm_version < 6.63_03;
+$MM_ARGS{PREREQ_PM} = {%{$MM_ARGS{PREREQ_PM}}, %{delete $MM_ARGS{BUILD_REQUIRES}}}
+  if $eumm_version < 6.55_01;
+delete $MM_ARGS{CONFIGURE_REQUIRES}
+  if $eumm_version < 6.51_03;
+
+ExtUtils::MakeMaker::WriteMakefile(%MM_ARGS);
