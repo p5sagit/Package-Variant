@@ -29,6 +29,8 @@ my %META = (
     },
   },
   no_index => { directory => [ 't', 'xt', ], package => [ 'string' ] },
+
+  realclean => { FILES => [ 'Distar/', 'MANIFEST*' ] },
 );
 
 my %MM_ARGS = ();
