@@ -5,7 +5,7 @@ use Import::Into;
 use Module::Runtime qw(require_module);
 use Carp qw(croak);
 
-our $VERSION = '1.002000';
+our $VERSION = '1.002001';
 
 $VERSION = eval $VERSION;
 
