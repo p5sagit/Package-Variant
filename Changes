@@ -1,5 +1,6 @@
 Revision history for Package-Variant
 
+  - specify perl prerequisite on metadata
   - documentation fixes and clarifications
 
 1.002000 - 2013-12-10
