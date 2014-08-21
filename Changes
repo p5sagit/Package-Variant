@@ -1,5 +1,7 @@
 Revision history for Package-Variant
 
+  - fix license in metadata
+
 1.002001 - 2014-08-16
   - specify perl prerequisite on metadata
   - documentation fixes and clarifications
