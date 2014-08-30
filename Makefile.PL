@@ -5,13 +5,13 @@ my %META = (
   name => 'Package-Variant',
   prereqs => {
     test => { requires => {
-      'Test::Fatal' => 0,
+      'Test::Fatal' => '0',
     }, },
     runtime => { requires => {
-      'perl' => 5.006,
-      'strictures' => 1,
-      'Carp' => 0,
-      'Import::Into' => 1,
+      'perl' => '5.006',
+      'strictures' => '1.000000',
+      'Carp' => '0',
+      'Import::Into' => '1.000000',
       'Module::Runtime' => '0.013',
     }, },
   },
