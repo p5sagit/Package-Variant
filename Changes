@@ -1,5 +1,7 @@
 Revision history for Package-Variant
 
+  - add make_variant_package_name optional method
+
 1.002002 - 2014-08-21
   - fix license in metadata
 

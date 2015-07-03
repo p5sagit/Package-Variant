@@ -131,4 +131,23 @@ like exception {
   );
 }, qr/value.+2.+foo.+importing.+array/i, 'importing array invalid list';
 
+BEGIN {
+  package TestOverrideName;
+
+  use Package::Variant;
+
+  sub make_variant_package_name {
+    my (undef, @args) = @_;
+    return $args[0];
+  }
+
+  sub make_variant {
+    install hey => sub { 'hey' };
+  }
+}
+
+is(TestOverrideName::->build_variant('hey'), 'hey');
+
+is(hey->hey, 'hey', 'hey');
+
 done_testing;

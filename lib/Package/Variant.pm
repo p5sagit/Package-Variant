@@ -94,9 +94,17 @@ sub import {
   };
 }
 
+sub build_variant_package_name {
+  my ($me, $variable, @args) = @_;
+  if ($variable->can('make_variant_package_name')) {
+    return $variable->make_variant_package_name(@args);
+  }
+  return "${variable}::_Variant_".++$Variable{$variable}{anon};
+}
+
 sub build_variant_of {
   my ($me, $variable, @args) = @_;
-  my $variant_name = "${variable}::_Variant_".++$Variable{$variable}{anon};
+  my $variant_name = $me->build_variant_package_name($variable, @args);
   foreach my $to_import (@{$Variable{$variable}{args}{importing}}) {
     my ($pkg, $args) = @$to_import;
     require_module $pkg;
@@ -315,6 +323,19 @@ declared in L</subs> to customize the new variant package.
 
 This is a class method receiving the C<$target> package and the
 C<@arguments> defining the requested variant.
+
+=head2 make_variant_package_name
+
+  Some::Variant::Package->make_variant_package_name( @arguments );
+
+B<You may optionally provide this method.> If present, this method will be
+used to determine the package name for a particular variant being constructed.
+
+If you do not implement it, a unique package name something like
+
+  Some::Variant::Package::_Variant_A003
+
+will be created for you.
 
 =head2 import
 
