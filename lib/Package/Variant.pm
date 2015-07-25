@@ -135,6 +135,8 @@ Package::Variant - Parameterizable packages
 
 =head1 SYNOPSIS
 
+Creation of anonymous variants:
+
   # declaring a variable Moo role
   package My::VariableRole::ObjectAttr;
   use strictures 1;
@@ -163,6 +165,50 @@ Package::Variant - Parameterizable packages
   use My::VariableRole::ObjectAttr;
 
   with ObjectAttr(name => 'some_obj', class => 'Some::Class');
+
+  # using our class
+  my $obj = My::Class::WithObjectAttr->new;
+  $obj->some_obj; # returns a Some::Class instance
+
+And the same thing, only with named variants:
+
+  # declaring a variable Moo role that can be named
+  package My::VariableRole::ObjectAttrNamed;
+  use strictures 1;
+  use Package::Variant importing => ['Moo::Role'],
+    subs => [ qw(has around before after with) ];
+  use Module::Runtime 'module_notional_filename'; # only if you need protection
+
+  # this method is run at variant creation time to determine its custom
+  # package name. it can use the arguments or do something entirely else.
+  sub make_variant_package_name {
+    my ($class, $package, %arguments) = @_;
+    $package = "Private::$package"; # you can munge the input here if you like
+    # only if you *need* protection
+    die "Won't clobber $package" if $INC{module_notional_filename $package};
+    return $package;
+  }
+
+  # same as in the example above, except for the argument list. in this example
+  # $package is the user input, and
+  # $target_package is the actual package in which the variant gets installed
+  sub make_variant {
+    my ($class, $target_package, $package, %arguments) = @_;
+    my $name = $arguments{name};
+    has $name => (is => 'lazy');
+    install "_build_${name}" => sub {return $arguments{class}->new};
+  }
+
+  # using the role
+  package My::Class::WithObjectAttr;
+  use strictures 1;
+  use Moo;
+  use My::VariableRole::ObjectAttrNamed;
+
+  # create the role under a specific name
+  ObjectAttrNamed "My::Role" => (name => 'some_obj', class => 'Some::Class');
+  # and use it
+  with "Private::My::Role";
 
   # using our class
   my $obj = My::Class::WithObjectAttr->new;
