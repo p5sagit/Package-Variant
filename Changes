@@ -1,5 +1,6 @@
 Revision history for Package-Variant
 
+1.003000 - 2015-07-25
   - switch to strictures 2
   - add make_variant_package_name optional method
 
