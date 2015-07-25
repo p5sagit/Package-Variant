@@ -1,5 +1,7 @@
 Revision history for Package-Variant
 
+  - also switch the tests to strictures 2 (aaaaaaaaaaaaaaaaaaaaaaaaaa)
+
 1.003001 - 2015-07-25
   - also switch the documentation to strictures 2 (slow clap for mst there)
 
