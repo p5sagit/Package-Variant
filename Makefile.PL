@@ -19,8 +19,8 @@ my %META = (
   resources => {
     # r/w: p5sagit@git.shadowcat.co.uk:Package-Variant.git
     repository => {
-      url => 'git://git.shadowcat.co.uk/p5sagit/Package-Variant.git',
-      web => 'http://git.shadowcat.co.uk/gitweb/gitweb.cgi?p=p5sagit/Package-Variant.git',
+      url => 'https://github.com/p5sagit/Package-Variant.git',
+      web => 'https://github.com/p5sagit/Package-Variant',
       type => 'git',
     },
     bugtracker => {
