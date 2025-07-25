@@ -1,4 +1,5 @@
-use strictures 2;
+use strict;
+use warnings;
 use Test::More;
 
 BEGIN {
