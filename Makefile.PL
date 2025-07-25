@@ -26,7 +26,10 @@ my %META = (
       web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Package-Variant',
     },
   },
-  no_index => { directory => [ 't', 'xt', ], package => [ 'string' ] },
+  no_index => {
+    directory => [ 't', 'xt', ],
+    package => [ 'string' ],
+  },
 );
 
 my %MM_ARGS = ();
