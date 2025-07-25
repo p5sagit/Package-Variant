@@ -48,9 +48,10 @@ my $sanitize_importing = sub {
   return \@imports;
 };
 
-my $sub_namer = eval {
-  require Sub::Name; sub { shift if @_ > 2; Sub::Name::subname(@_) }
-} || sub { $_[-1] };
+my $sub_namer
+  = eval { require Sub::Util } && defined &Sub::Util::set_subname ? \&Sub::Util::set_subname
+  : eval { require Sub::Name } && defined &Sub::Name::subname     ? \&Sub::Util::subname
+  : sub { $_[1] };
 
 sub import {
   my $variable = caller;
