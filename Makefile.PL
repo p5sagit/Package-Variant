@@ -17,7 +17,6 @@ my %META = (
   },
   dynamic_config => 0,
   resources => {
-    # r/w: p5sagit@git.shadowcat.co.uk:Package-Variant.git
     repository => {
       url => 'https://github.com/p5sagit/Package-Variant.git',
       web => 'https://github.com/p5sagit/Package-Variant',
