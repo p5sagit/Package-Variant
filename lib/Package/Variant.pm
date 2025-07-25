@@ -1,6 +1,6 @@
 package Package::Variant;
-
-use strictures 2;
+use strict;
+use warnings;
 use Import::Into;
 use Module::Runtime qw(require_module);
 use Carp qw(croak);

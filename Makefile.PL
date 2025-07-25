@@ -9,7 +9,6 @@ my %META = (
     }, },
     runtime => { requires => {
       'perl' => '5.006',
-      'strictures' => '2.000000',
       'Carp' => '0',
       'Import::Into' => '1.000000',
       'Module::Runtime' => '0.013',
