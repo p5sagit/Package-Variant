@@ -117,7 +117,7 @@ sub build_variant_of {
     my $full_name = "${variant_name}::".shift;
 
     my $ref = $sub_namer->($full_name, @_);
-    
+
     no strict 'refs';
     *$full_name = $ref;
   };

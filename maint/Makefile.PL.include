@@ -2,5 +2,5 @@ BEGIN { -e 'Distar' or system qw(git clone https://github.com/p5sagit/Distar.git
 use lib "Distar/lib";
 use Distar;
 
-use ExtUtils::MakeMaker 6.68;	# ensure meta-spec v2 compatibility
+use ExtUtils::MakeMaker 6.68;   # ensure meta-spec v2 compatibility
 author 'mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>';
