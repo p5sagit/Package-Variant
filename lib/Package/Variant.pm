@@ -138,7 +138,8 @@ Creation of anonymous variants:
 
   # declaring a variable Moo role
   package My::VariableRole::ObjectAttr;
-  use strictures 2;
+  use strict;
+  use warnings;
   use Package::Variant
     # what modules to 'use'
     importing => ['Moo::Role'],
@@ -159,7 +160,8 @@ Creation of anonymous variants:
 
   # using the role
   package My::Class::WithObjectAttr;
-  use strictures 2;
+  use strict;
+  use warnings;
   use Moo;
   use My::VariableRole::ObjectAttr;
 
@@ -173,7 +175,8 @@ And the same thing, only with named variants:
 
   # declaring a variable Moo role that can be named
   package My::VariableRole::ObjectAttrNamed;
-  use strictures 2;
+  use strict;
+  use warnings;
   use Package::Variant importing => ['Moo::Role'],
     subs => [ qw(has around before after with) ];
   use Module::Runtime 'module_notional_filename'; # only if you need protection
@@ -200,7 +203,8 @@ And the same thing, only with named variants:
 
   # using the role
   package My::Class::WithObjectAttr;
-  use strictures 2;
+  use strict;
+  use warnings;
   use Moo;
   use My::VariableRole::ObjectAttrNamed;
 
