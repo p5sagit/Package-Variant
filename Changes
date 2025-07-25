@@ -1,5 +1,10 @@
 Revision history for Package-Variant
 
+  - update repository in metadata
+  - remove use of strictures from code and docs. it's an unnecessary prereq,
+    and likely to be confusing in examples.
+  - prefer to use core module Sub::Util for naming subs rather than Sub::Name
+
 1.003002 - 2015-07-25
   - also switch the tests to strictures 2 (aaaaaaaaaaaaaaaaaaaaaaaaaa)
 
